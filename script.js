@@ -1,6 +1,5 @@
-/* ========== TURNO DI TERAPIA - Game Logic ========== */
+/* ========== Turno Sereno - Game Logic ========== */
 
-// === Data: Patients (modular) ===
 const PATIENTS = [
   {
     id: 'P001',
@@ -92,55 +91,17 @@ const PATIENTS = [
   }
 ];
 
-// === Data: Dynamic Events ===
 const DYNAMIC_EVENTS = [
-  {
-    id: 'not_in_room',
-    type: 'danger',
-    title: 'Paziente non in stanza',
-    text: 'Il paziente della stanza 102 non è nel letto. Cercare in bagno o in corridoio prima di somministrare.',
-    icon: '🚶'
-  },
-  {
-    id: 'allergy_warning',
-    type: 'danger',
-    title: 'Avviso allergie',
-    text: 'Controllare la scheda allergie del paziente Bianchi: allergia documentata a penicillina.',
-    icon: '⚠️'
-  },
-  {
-    id: 'bp_low',
-    type: 'warning',
-    title: 'Pressione bassa',
-    text: 'Paziente stanza 103: pressione sistolica 90 mmHg. Valutare con medico prima di somministrare Enalapril.',
-    icon: '❤️‍🩹'
-  },
-  {
-    id: 'refuses',
-    type: 'warning',
-    title: 'Rifiuto terapia',
-    text: 'Paziente Neri può rifiutare la terapia. Procedere con tatto e documentare eventuale rifiuto.',
-    icon: '🤔'
-  },
-  {
-    id: 'urgent_rx',
-    type: 'info',
-    title: 'Nuova prescrizione urgente',
-    text: 'Il medico ha lasciato una nuova prescrizione al banco. Ritirare e verificare prima di somministrare.',
-    icon: '📋'
-  },
-  {
-    id: 'confusion',
-    type: 'warning',
-    title: 'Possibile confusione',
-    text: 'Attenzione: due pazienti con nomi simili nel reparto. Verificare sempre braccialetto identificativo.',
-    icon: '🔍'
-  }
+  { id: 'not_in_room', type: 'danger', title: 'Paziente non in stanza', text: 'Il paziente della stanza 102 non è nel letto. Cercare in bagno o in corridoio prima di somministrare.', icon: '🚶' },
+  { id: 'allergy_warning', type: 'danger', title: 'Avviso allergie', text: 'Controllare la scheda allergie del paziente Bianchi: allergia documentata a penicillina.', icon: '⚠️' },
+  { id: 'bp_low', type: 'warning', title: 'Pressione bassa', text: 'Paziente stanza 103: pressione sistolica 90 mmHg. Valutare con medico prima di somministrare Enalapril.', icon: '❤️‍🩹' },
+  { id: 'refuses', type: 'warning', title: 'Rifiuto terapia', text: 'Paziente Neri può rifiutare la terapia. Procedere con tatto e documentare eventuale rifiuto.', icon: '🤔' },
+  { id: 'urgent_rx', type: 'info', title: 'Nuova prescrizione urgente', text: 'Il medico ha lasciato una nuova prescrizione al banco. Ritirare e verificare prima di somministrare.', icon: '📋' },
+  { id: 'confusion', type: 'warning', title: 'Possibile confusione', text: 'Attenzione: due pazienti con nomi simili nel reparto. Verificare sempre braccialetto identificativo.', icon: '🔍' }
 ];
 
-// === Data: Head Nurse Messages ===
 const HEAD_NURSE_MESSAGES = {
-  start: 'Benvenuta al turno! Controlla ogni paziente con attenzione e verifica sempre i braccialetti.',
+  start: 'Inizia dal paziente che ti sembra più semplice. Verifica sempre i braccialetti e le note cliniche.',
   after_first: 'Ottimo inizio! Ricorda: due identificatori per ogni paziente.',
   mid_shift: 'Sei a metà turno. Continuare con la stessa cura.',
   near_end: 'Ultimi pazienti! Mantieni la concentrazione.',
@@ -149,15 +110,13 @@ const HEAD_NURSE_MESSAGES = {
   error: 'Attenzione: verifica la documentazione e le prescrizioni.'
 };
 
-// === State ===
 let gameState = {
-  mode: 'calm', // calm | challenge
+  mode: 'calm',
   scores: { safety: 0, speed: 0, trust: 0 },
   medsCorrect: 0,
   nearMisses: 0,
   errors: 0,
   currentPatient: null,
-  currentStep: 0,
   verifiedIdentifiers: 0,
   safetyChecked: false,
   timerInterval: null,
@@ -167,40 +126,40 @@ let gameState = {
   activeEvents: []
 };
 
-// === DOM References ===
 const screens = {
-  start: document.getElementById('start-screen'),
-  game: document.getElementById('game-screen'),
-  end: document.getElementById('end-screen')
+  start: document.getElementById('startScreen'),
+  game: document.getElementById('gameScreen'),
+  end: document.getElementById('endScreen')
 };
 
 const modals = {
-  patient: document.getElementById('patient-modal'),
-  scan: document.getElementById('scan-modal'),
-  decision: document.getElementById('decision-modal')
+  patient: document.getElementById('patientModal'),
+  scan: document.getElementById('scanModal'),
+  decision: document.getElementById('decisionModal')
 };
 
-// === Helpers ===
-function showScreen(screenId) {
-  Object.values(screens).forEach(s => s.classList.remove('active'));
-  document.getElementById(screenId).classList.add('active');
+function showScreen(screenEl) {
+  [screens.start, screens.game, screens.end].forEach(s => s?.classList.remove('active'));
+  screenEl?.classList.add('active');
+  document.body.classList.toggle('game-active', screenEl === screens.game || screenEl === screens.end);
 }
 
 function showModal(modal, show = true) {
-  modal.classList.toggle('active', show);
+  modal?.classList.toggle('active', show);
 }
 
 function showFeedback(message, type) {
-  const toast = document.getElementById('feedback-toast');
-  toast.className = `feedback-toast ${type}`;
-  toast.querySelector('.feedback-icon').textContent = type === 'success' ? '✓' : type === 'warning' ? '!' : '✕';
-  toast.querySelector('.feedback-text').textContent = message;
+  const toast = document.getElementById('feedbackToast');
+  if (!toast) return;
+  toast.className = `toast ${type}`;
+  toast.querySelector('.toast-icon').textContent = type === 'success' ? '✓' : type === 'warning' ? '!' : '✕';
+  toast.querySelector('.toast-text').textContent = message;
   toast.classList.remove('hidden');
   setTimeout(() => toast.classList.add('hidden'), 2500);
 }
 
-function updateHNMessage(msg) {
-  const el = document.getElementById('hn-message');
+function updateGuide(msg) {
+  const el = document.getElementById('guideMessage');
   if (el) el.textContent = msg;
 }
 
@@ -209,11 +168,11 @@ function randomDialogue(patient) {
   return arr[Math.floor(Math.random() * arr.length)] || '...';
 }
 
-// === Timer ===
 function startTimer() {
   gameState.elapsedSeconds = 0;
-  const el = document.getElementById('timer-display');
-  el.className = 'timer';
+  const el = document.getElementById('timeLeft');
+  if (!el) return;
+  el.className = '';
   gameState.timerInterval = setInterval(() => {
     gameState.elapsedSeconds++;
     const m = Math.floor(gameState.elapsedSeconds / 60);
@@ -233,26 +192,22 @@ function stopTimer() {
   }
 }
 
-// === Score Update ===
 function updateScoreDisplay() {
-  document.getElementById('score-safety').querySelector('strong').textContent = gameState.scores.safety;
-  document.getElementById('score-speed').querySelector('strong').textContent = gameState.scores.speed;
-  document.getElementById('score-trust').querySelector('strong').textContent = gameState.scores.trust;
-  document.getElementById('meds-done').textContent = gameState.medsCorrect;
+  const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+  set('safetyScore', gameState.scores.safety);
+  set('speedScore', gameState.scores.speed);
+  set('trustScore', gameState.scores.trust);
+  set('medsDone', gameState.medsCorrect);
 }
 
-// === Dynamic Events ===
 function triggerRandomEvent() {
   if (gameState.activeEvents.length >= 2) return;
   const ev = DYNAMIC_EVENTS[Math.floor(Math.random() * DYNAMIC_EVENTS.length)];
   if (gameState.activeEvents.some(e => e.id === ev.id)) return;
   gameState.activeEvents.push(ev);
-  updateHNMessage(HEAD_NURSE_MESSAGES.event);
-  renderEvent(ev);
-}
-
-function renderEvent(ev) {
-  const container = document.getElementById('dynamic-events');
+  updateGuide(HEAD_NURSE_MESSAGES.event);
+  const container = document.getElementById('dynamicEvents');
+  if (!container) return;
   const div = document.createElement('div');
   div.className = `event-banner ${ev.type}`;
   div.dataset.id = ev.id;
@@ -264,11 +219,11 @@ function renderEvent(ev) {
   }, 8000);
 }
 
-// === Patients Grid ===
 function renderPatients() {
-  const grid = document.getElementById('patients-grid');
+  const grid = document.getElementById('patientsGrid');
+  if (!grid) return;
   grid.innerHTML = '';
-  PATIENTS.forEach((p, i) => {
+  PATIENTS.forEach(p => {
     const card = document.createElement('div');
     card.className = 'patient-card';
     card.dataset.id = p.id;
@@ -294,14 +249,14 @@ function markPatientCompleted(id) {
   if (card) card.classList.add('completed');
 }
 
-// === Patient Card Modal ===
 function openPatientCard(patient) {
   gameState.currentPatient = { ...patient };
   gameState.verifiedIdentifiers = 0;
   gameState.safetyChecked = false;
   gameState.patientStartTimes[patient.id] = gameState.patientStartTimes[patient.id] || Date.now();
 
-  const content = document.getElementById('patient-card-content');
+  const content = document.getElementById('patientCardContent');
+  if (!content) return;
   content.innerHTML = `
     <div class="patient-detail-header">
       <div class="patient-detail-avatar" style="background:${patient.avatarColor}40;color:${patient.avatarColor}">${patient.avatarEmoji}</div>
@@ -310,40 +265,39 @@ function openPatientCard(patient) {
         <div class="patient-detail-meta">Stanza ${patient.room} • ${patient.age} anni</div>
       </div>
     </div>
-    <p class="patient-dialogue" style="font-style:italic;color:var(--color-teal);margin-bottom:1rem">"${randomDialogue(patient)}"</p>
+    <p class="patient-dialogue">"${randomDialogue(patient)}"</p>
     <p class="section-title">Note cliniche</p>
     <div class="patient-clinical">${patient.clinicalNote}</div>
     <p class="section-title">Farmaco prescritto</p>
     <div class="patient-medication">${patient.medication}</div>
     <p class="section-title">Verifica identità (2 identificatori)</p>
     <div class="identifiers">
-      ${patient.identifiers.map((id, i) => `
-        <div class="identifier-row" data-idx="${i}" data-key="${id.key}">
+      ${patient.identifiers.map(id => `
+        <div class="identifier-row" data-key="${id.key}">
           <span>${id.label}: <strong>${id.value}</strong></span>
         </div>
       `).join('')}
     </div>
     <p class="section-title">Condizione di sicurezza</p>
-    <div class="checkbox-group" id="safety-checkbox">
-      <input type="checkbox" id="safety-check">
-      <label for="safety-check">Ho verificato che non ci siano controindicazioni o allergie per questo farmaco</label>
+    <div class="checkbox-group" id="safetyCheckbox">
+      <input type="checkbox" id="safetyCheck">
+      <label for="safetyCheck">Ho verificato che non ci siano controindicazioni o allergie per questo farmaco</label>
     </div>
-    <button class="btn-open-patient" id="btn-open-decision" disabled>Procedi alla decisione</button>
+    <button class="btn-open-patient primary-btn" id="btnOpenDecision" disabled>Procedi alla decisione</button>
   `;
 
-  const identifierRows = content.querySelectorAll('.identifier-row');
-  identifierRows.forEach(row => {
+  content.querySelectorAll('.identifier-row').forEach(row => {
     row.addEventListener('click', () => verifyIdentifier(row));
   });
 
-  const checkbox = content.querySelector('#safety-checkbox');
-  content.querySelector('#safety-check').addEventListener('change', function() {
+  const checkbox = content.querySelector('#safetyCheckbox');
+  content.querySelector('#safetyCheck').addEventListener('change', function() {
     gameState.safetyChecked = this.checked;
     checkbox.classList.toggle('checked', this.checked);
     updateProceedButton();
   });
 
-  content.querySelector('#btn-open-decision').addEventListener('click', () => {
+  content.querySelector('#btnOpenDecision').addEventListener('click', () => {
     if (gameState.verifiedIdentifiers >= 2 && gameState.safetyChecked) {
       showModal(modals.patient, false);
       openScanModal('bracelet');
@@ -366,45 +320,47 @@ function verifyIdentifier(row) {
 }
 
 function updateProceedButton() {
-  const btn = document.querySelector('#btn-open-decision');
+  const btn = document.querySelector('#btnOpenDecision');
   if (btn) btn.disabled = !(gameState.verifiedIdentifiers >= 2 && gameState.safetyChecked);
 }
 
-// === Barcode Scan ===
 function openScanModal(type) {
   const isBracelet = type === 'bracelet';
-  document.getElementById('scan-title').textContent = isBracelet ? 'Scansione braccialetto paziente' : 'Scansione confezione farmaco';
-  const code = gameState.currentPatient ? (isBracelet ? gameState.currentPatient.barcodeId : `MED-${gameState.currentPatient.id}-A1`) : '---';
-  document.getElementById('barcode-display').textContent = code;
-  document.getElementById('btn-scan').textContent = 'Scansiona';
-  document.getElementById('btn-scan').dataset.nextType = isBracelet ? 'medication' : 'decision';
+  const title = document.getElementById('scanTitle');
+  const display = document.getElementById('barcodeDisplay');
+  const btn = document.getElementById('btnScan');
+  if (title) title.textContent = isBracelet ? 'Scansione braccialetto paziente' : 'Scansione confezione farmaco';
+  if (display) display.textContent = gameState.currentPatient ? (isBracelet ? gameState.currentPatient.barcodeId : `MED-${gameState.currentPatient.id}-A1`) : '---';
+  if (btn) {
+    btn.textContent = 'Scansiona';
+    btn.dataset.nextType = isBracelet ? 'medication' : 'decision';
+  }
   showModal(modals.scan, true);
 }
 
 function doScan() {
-  const btn = document.getElementById('btn-scan');
-  const nextType = btn.dataset.nextType;
-  btn.textContent = '✓ Scansionato';
-  btn.disabled = true;
+  const btn = document.getElementById('btnScan');
+  const nextType = btn?.dataset.nextType;
+  if (btn) {
+    btn.textContent = '✓ Scansionato';
+    btn.disabled = true;
+  }
   gameState.scores.safety += 3;
   updateScoreDisplay();
   showFeedback('Scansione completata correttamente.', 'success');
   setTimeout(() => {
     showModal(modals.scan, false);
-    btn.disabled = false;
-    if (nextType === 'medication') {
-      openScanModal('medication');
-    } else {
-      openDecisionModal();
-    }
+    if (btn) { btn.disabled = false; }
+    if (nextType === 'medication') openScanModal('medication');
+    else openDecisionModal();
   }, 800);
 }
 
-// === Decision Modal ===
 function openDecisionModal() {
   const p = gameState.currentPatient;
-  document.getElementById('decision-patient-name').textContent = `${p.name} - ${p.medication}`;
-  modals.decision.querySelectorAll('.btn-decision').forEach(btn => {
+  const el = document.getElementById('decisionPatientName');
+  if (el) el.textContent = `${p.name} - ${p.medication}`;
+  modals.decision?.querySelectorAll('.btn-decision').forEach(btn => {
     btn.onclick = () => handleDecision(btn.dataset.action);
   });
   showModal(modals.decision, true);
@@ -415,81 +371,66 @@ function handleDecision(action) {
   const correct = patient.correctAction;
   const isCorrect = action === correct;
 
-  // Speed bonus (challenge mode)
   const startTime = gameState.patientStartTimes[patient.id];
   const duration = (Date.now() - startTime) / 1000;
-  if (gameState.mode === 'challenge' && duration < 60) {
-    gameState.scores.speed += 5;
-  } else if (gameState.mode === 'calm') {
-    gameState.scores.speed += 2;
-  }
+  if (gameState.mode === 'challenge' && duration < 60) gameState.scores.speed += 5;
+  else gameState.scores.speed += 2;
 
   if (isCorrect) {
     gameState.medsCorrect++;
     gameState.scores.safety += 10;
     gameState.scores.trust += 5;
     showFeedback(`Scelta corretta per ${patient.name}. Ottimo lavoro!`, 'success');
-    updateHNMessage(HEAD_NURSE_MESSAGES.correct);
+    updateGuide(HEAD_NURSE_MESSAGES.correct);
   } else {
     gameState.errors++;
     if (action === 'chiama' && correct !== 'chiama') {
       gameState.nearMisses++;
-      showFeedback('Attenzione: in questo caso non era necessario chiamare il medico. Verifica la scheda.', 'warning');
+      showFeedback('Attenzione: in questo caso non era necessario chiamare il medico.', 'warning');
     } else if (action === 'somministra' && (correct === 'rimanda' || correct === 'chiama')) {
-      showFeedback(`Errore: per ${patient.name} la scelta corretta era "${correct === 'chiama' ? 'Chiama medico' : 'Rimanda'}". Rivedi la scheda.`, 'danger');
+      showFeedback(`Errore: per ${patient.name} la scelta corretta era "${correct === 'chiama' ? 'Chiama medico' : 'Rimanda'}".`, 'danger');
     } else {
-      showFeedback(`Scelta non ottimale per questo paziente.`, 'warning');
+      showFeedback('Scelta non ottimale per questo paziente.', 'warning');
       gameState.nearMisses++;
     }
-    updateHNMessage(HEAD_NURSE_MESSAGES.error);
+    updateGuide(HEAD_NURSE_MESSAGES.error);
   }
 
   updateScoreDisplay();
   markPatientCompleted(patient.id);
   gameState.completedPatients++;
-
   showModal(modals.decision, false);
   gameState.currentPatient = null;
 
-  // HN message by progress
-  if (gameState.completedPatients === 1) updateHNMessage(HEAD_NURSE_MESSAGES.after_first);
-  else if (gameState.completedPatients === 2) updateHNMessage(HEAD_NURSE_MESSAGES.mid_shift);
-  else if (gameState.completedPatients >= 3) updateHNMessage(HEAD_NURSE_MESSAGES.near_end);
+  if (gameState.completedPatients === 1) updateGuide(HEAD_NURSE_MESSAGES.after_first);
+  else if (gameState.completedPatients === 2) updateGuide(HEAD_NURSE_MESSAGES.mid_shift);
+  else if (gameState.completedPatients >= 3) updateGuide(HEAD_NURSE_MESSAGES.near_end);
 
-  if (gameState.completedPatients >= 4) {
-    setTimeout(endShift, 1200);
-  }
+  if (gameState.completedPatients >= 4) setTimeout(endShift, 1200);
 }
 
-// === End Shift ===
 function endShift() {
   stopTimer();
   const total = gameState.scores.safety + gameState.scores.speed + gameState.scores.trust;
-  document.getElementById('end-total-score').textContent = total;
-  document.getElementById('end-meds-correct').textContent = gameState.medsCorrect;
-  document.getElementById('end-near-misses').textContent = gameState.nearMisses;
-  document.getElementById('end-errors').textContent = gameState.errors;
+  const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+  set('endTotal', total);
+  set('endMeds', gameState.medsCorrect);
+  set('endNearMisses', gameState.nearMisses);
+  set('endErrors', gameState.errors);
 
-  const evalText = getEvaluationText(total, gameState.medsCorrect, gameState.errors, gameState.nearMisses);
-  document.getElementById('end-evaluation-text').textContent = evalText;
+  const evalEl = document.getElementById('endEvaluation');
+  if (evalEl) evalEl.textContent = getEvaluationText(total, gameState.medsCorrect, gameState.errors, gameState.nearMisses);
 
-  showScreen('end-screen');
+  showScreen(screens.end);
 }
 
 function getEvaluationText(total, correct, errors, nearMisses) {
-  if (errors === 0 && correct === 4) {
-    return 'Turno eccellente! Hai somministrato tutti i farmaci in sicurezza, verificato le identità e gestito gli eventi con professionalità. Il reparto è in buone mani.';
-  }
-  if (errors <= 1 && nearMisses > 0) {
-    return 'Buon turno. Hai evitato diversi potenziali errori grazie alla tua attenzione. Continua a verificare sempre le schede e le allergie.';
-  }
-  if (errors >= 2) {
-    return 'Turno impegnativo. Ci sono stati alcuni errori: ricordati di verificare sempre due identificatori, controllare le allergie e le note cliniche prima di somministrare. La sicurezza del paziente viene prima di tutto.';
-  }
+  if (errors === 0 && correct === 4) return 'Turno eccellente! Hai somministrato tutti i farmaci in sicurezza, verificato le identità e gestito gli eventi con professionalità. Il reparto è in buone mani.';
+  if (errors <= 1 && nearMisses > 0) return 'Buon turno. Hai evitato diversi potenziali errori grazie alla tua attenzione. Continua a verificare sempre le schede e le allergie.';
+  if (errors >= 2) return 'Turno impegnativo. Ci sono stati alcuni errori: ricordati di verificare sempre due identificatori, controllare le allergie e le note cliniche prima di somministrare. La sicurezza del paziente viene prima di tutto.';
   return 'Turno completato. Hai gestito la maggior parte delle situazioni correttamente. Continua a migliorare verificando le procedure di sicurezza.';
 }
 
-// === Init ===
 function initGame() {
   gameState = {
     mode: document.querySelector('.mode-btn.active')?.dataset.mode || 'calm',
@@ -509,38 +450,28 @@ function initGame() {
 
   updateScoreDisplay();
   renderPatients();
-  updateHNMessage(HEAD_NURSE_MESSAGES.start);
+  updateGuide(HEAD_NURSE_MESSAGES.start);
   startTimer();
-
-  // Random events
   setTimeout(triggerRandomEvent, 8000);
   setTimeout(triggerRandomEvent, 20000);
 
-  showScreen('game-screen');
+  showScreen(screens.game);
 }
 
-// === Event Listeners ===
-document.getElementById('btn-start').addEventListener('click', initGame);
+document.getElementById('startBtn')?.addEventListener('click', initGame);
 
-document.getElementById('btn-calm').addEventListener('click', () => {
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('btn-calm').classList.add('active');
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
 });
 
-document.getElementById('btn-challenge').addEventListener('click', () => {
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('btn-challenge').classList.add('active');
-});
+document.getElementById('modalClose')?.addEventListener('click', () => showModal(modals.patient, false));
+document.getElementById('scanClose')?.addEventListener('click', () => showModal(modals.scan, false));
+document.getElementById('btnScan')?.addEventListener('click', doScan);
 
-document.getElementById('modal-close').addEventListener('click', () => showModal(modals.patient, false));
-document.getElementById('scan-close').addEventListener('click', () => showModal(modals.scan, false));
+modals.patient?.querySelector('.modal-backdrop')?.addEventListener('click', () => showModal(modals.patient, false));
+modals.scan?.querySelector('.modal-backdrop')?.addEventListener('click', () => showModal(modals.scan, false));
 
-document.getElementById('btn-scan').addEventListener('click', doScan);
-
-modals.patient.querySelector('.modal-backdrop').addEventListener('click', () => showModal(modals.patient, false));
-modals.scan.querySelector('.modal-backdrop').addEventListener('click', () => showModal(modals.scan, false));
-modals.decision.querySelector('.modal-backdrop').addEventListener('click', () => {});
-
-document.getElementById('btn-restart').addEventListener('click', () => {
-  showScreen('start-screen');
-});
+document.getElementById('restartBtn')?.addEventListener('click', () => showScreen(screens.start));
