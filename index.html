@@ -16,12 +16,10 @@
         <p class="eyebrow">Cozy hospital game</p>
         <h1>Turno Sereno</h1>
       </div>
-      <div class="topbar-right" id="topbarScores">
-        <div class="pill">Sicurezza: <span id="safetyScore">0</span></div>
-        <div class="pill">Velocità: <span id="speedScore">0</span></div>
-        <div class="pill">Fiducia: <span id="trustScore">0</span></div>
-        <div class="pill">Farmaci: <span id="medsDone">0</span>/4</div>
-        <div class="pill timer-pill">Tempo: <span id="timeLeft">00:00</span></div>
+      <div class="topbar-right game-stats" id="gameStats">
+        <span class="stat">Round <span id="roundLabel">1</span></span>
+        <span class="stat">⭐ <span id="starsLabel">0</span></span>
+        <span class="stat">⏱ <span id="timerLabel">15</span></span>
       </div>
     </header>
 
@@ -30,26 +28,12 @@
         <div class="hero-card">
           <div class="hero-copy">
             <p class="eyebrow">Benvenuti nel reparto</p>
-            <h2>Aiuta i pazienti, evita errori, gestisci il turno con calma.</h2>
+            <h2>Aiuta i pazienti, scegli braccialetto e medicina giusti.</h2>
             <p>
-              Non serve essere infermieri: bastano attenzione, empatia e decisioni giuste.
-              Clicca su un paziente, controlla i dati, scansiona e scegli come procedere.
+              Ogni round: identifica il paziente giusto dal braccialetto,
+              scegli la medicina corretta, prepara il vassoio e consegna.
             </p>
-            <div class="how-to">
-              <p class="how-to-title">Come si gioca</p>
-              <ol class="how-to-list">
-                <li>Clicca su un paziente</li>
-                <li>Verifica 2 dati (nome, stanza, ecc.)</li>
-                <li>Controlla allergie e note cliniche</li>
-                <li>Scansiona braccialetto e farmaco</li>
-                <li>Scegli: Somministra, Rimanda o Chiama medico</li>
-              </ol>
-            </div>
-            <div class="mode-row">
-              <button class="mode-btn active" data-mode="calm" aria-pressed="true">🌙 Calma – senza fretta</button>
-              <button class="mode-btn" data-mode="challenge" aria-pressed="false">⚡ Sfida – tempo extra</button>
-            </div>
-            <button id="startBtn" class="primary-btn" aria-label="Inizia il turno di gioco">Inizia turno</button>
+            <button id="startBtn" class="primary-btn">Inizia turno</button>
           </div>
           <div class="hero-visual">
             <div class="hero-bubble bubble-a"></div>
@@ -59,122 +43,59 @@
               <div class="face"></div>
               <div class="body"></div>
             </div>
-            <div class="guide-card">
-              <span class="guide-dot"></span>
-              <p>Caposala: "Controlla sempre chi hai davanti e leggi bene le note cliniche."</p>
-            </div>
           </div>
         </div>
       </section>
 
       <section id="gameScreen" class="screen">
-        <div class="layout">
-          <aside class="sidebar">
-            <div class="side-card">
-              <h3>Caposala</h3>
-              <p id="guideMessage">
-                Clicca su un paziente per iniziare. Segui le istruzioni passo passo e osserva gli avvisi nella colonna.
-              </p>
+        <div class="game-layout">
+          <div class="patient-section">
+            <div class="patient-card">
+              <div class="patient-avatar" id="patientAvatar"></div>
+              <h2 id="patientName">Paziente</h2>
+              <p class="patient-mood" id="patientMood"></p>
+              <p class="patient-dialogue" id="patientDialogue"></p>
             </div>
-            <div class="side-card">
-              <h3>Obiettivi</h3>
-              <ul class="mini-list">
-                <li>Abbina paziente e medicina giusta</li>
-                <li>Controlla allergie e note cliniche</li>
-                <li>Verifica sempre 2 identificatori</li>
-                <li>Leggi gli avvisi che compaiono</li>
-              </ul>
+          </div>
+
+          <div class="actions-section">
+            <div class="action-block">
+              <h3>Quale braccialetto?</h3>
+              <div class="bracelet-choices" id="braceletChoices"></div>
             </div>
-            <div class="dynamic-events" id="dynamicEvents"></div>
-          </aside>
-          <div class="content-area">
-            <div class="progress-pill" id="progressPill">0 di 4 pazienti</div>
-            <div class="patients-grid" id="patientsGrid"></div>
+
+            <div class="action-block">
+              <h3>Scegli la medicina</h3>
+              <div class="medicine-choices" id="medicineChoices"></div>
+              <p class="selected-info" id="selectedMedicine">Nessuna medicina scelta</p>
+            </div>
+
+            <div class="action-block">
+              <h3>Vassoio</h3>
+              <div class="tray-dropzone" id="trayDropzone">Vassoio</div>
+            </div>
+
+            <div class="feedback-box neutral" id="feedbackBox">
+              Pronta? Scegli la medicina e completa il mini gioco.
+            </div>
+
+            <div class="game-buttons">
+              <button id="deliverBtn" class="primary-btn">Consegna</button>
+              <button id="skipBtn" class="secondary-btn">Salta</button>
+            </div>
           </div>
         </div>
       </section>
 
       <section id="endScreen" class="screen">
         <div class="end-card">
-          <p class="eyebrow">Fine del turno</p>
-          <h2>Grazie per il tuo lavoro</h2>
-          <div class="summary-row">
-            <div class="summary-box">
-              <span class="summary-num" id="endTotal">0</span>
-              <span class="summary-label">Punteggio totale</span>
-            </div>
-            <div class="summary-box">
-              <span class="summary-num" id="endMeds">0</span>
-              <span class="summary-label">Farmaci corretti</span>
-            </div>
-            <div class="summary-box">
-              <span class="summary-num" id="endNearMisses">0</span>
-              <span class="summary-label">Quasi errori evitati</span>
-            </div>
-            <div class="summary-box">
-              <span class="summary-num" id="endErrors">0</span>
-              <span class="summary-label">Errori</span>
-            </div>
-          </div>
-          <div class="evaluation-box">
-            <p id="endEvaluation"></p>
-          </div>
+          <h2 id="resultTitle">Fine del turno</h2>
+          <p class="stars-big" id="starsBig">⭐ ⭐ ⭐</p>
+          <p class="result-text" id="resultText"></p>
           <button id="restartBtn" class="primary-btn">Nuovo turno</button>
         </div>
       </section>
     </main>
-  </div>
-
-  <!-- Patient Modal -->
-  <div id="patientModal" class="modal">
-    <div class="modal-backdrop"></div>
-    <div class="modal-panel">
-      <button class="modal-close" id="modalClose">&times;</button>
-      <div id="patientCardContent"></div>
-    </div>
-  </div>
-
-  <!-- Scan Modal -->
-  <div id="scanModal" class="modal">
-    <div class="modal-backdrop"></div>
-    <div class="modal-panel">
-      <button class="modal-close" id="scanClose">&times;</button>
-      <div class="scan-box">
-        <h3 id="scanTitle">Scansione braccialetto</h3>
-        <div class="barcode-area">
-          <div class="scan-line"></div>
-          <div class="barcode" id="barcodeDisplay"></div>
-          <p class="scan-hint">Clicca il pulsante "Scansiona" qui sotto</p>
-        </div>
-        <button id="btnScan" class="primary-btn" aria-label="Scansiona braccialetto o farmaco">Scansiona</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Decision Modal -->
-  <div id="decisionModal" class="modal">
-    <div class="modal-backdrop"></div>
-    <div class="modal-panel">
-      <h3>Che scelta fai?</h3>
-      <p class="decision-sub" id="decisionPatientName"></p>
-      <div class="decision-btns">
-        <button class="btn-decision btn-somministra" data-action="somministra">
-          <span class="btn-icon">✓</span> Somministra
-        </button>
-        <button class="btn-decision btn-rimanda" data-action="rimanda">
-          <span class="btn-icon">→</span> Rimanda
-        </button>
-        <button class="btn-decision btn-chiama" data-action="chiama">
-          <span class="btn-icon">📞</span> Chiama medico
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast -->
-  <div id="feedbackToast" class="toast hidden">
-    <span class="toast-icon"></span>
-    <span class="toast-text"></span>
   </div>
 
   <script src="script.js"></script>
