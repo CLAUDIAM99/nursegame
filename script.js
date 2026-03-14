@@ -136,7 +136,7 @@ function loadRound() {
   starsLabel.textContent = stars;
   timerLabel.textContent = timer;
 
-  patientAvatar.className = `patient-avatar ${round.avatar}`;
+  patientAvatar.className = `patient-avatar omino-wrapper ${round.avatar}`;
   patientName.textContent = round.patient;
   patientMood.textContent = round.mood;
   patientDialogue.textContent = `"${round.dialogue}"`;
