@@ -101,13 +101,15 @@ const DYNAMIC_EVENTS = [
 ];
 
 const HEAD_NURSE_MESSAGES = {
-  start: 'Inizia dal paziente che ti sembra più semplice. Verifica sempre i braccialetti e le note cliniche.',
-  after_first: 'Ottimo inizio! Ricorda: due identificatori per ogni paziente.',
-  mid_shift: 'Sei a metà turno. Continuare con la stessa cura.',
+  start: 'Clicca su un paziente per iniziare. Controlla sempre i dati e le note cliniche.',
+  after_first: 'Ottimo! Ricorda: verifica sempre 2 identificatori per ogni paziente.',
+  mid_shift: 'Sei a metà. Continua con attenzione.',
   near_end: 'Ultimi pazienti! Mantieni la concentrazione.',
-  event: 'Evento in reparto: leggi attentamente e adatta il tuo piano.',
-  correct: 'Perfetto! Procedura corretta.',
-  error: 'Attenzione: verifica la documentazione e le prescrizioni.'
+  event: 'Avviso in reparto: leggi e adatta il tuo piano.',
+  correct: 'Perfetto! Scelta corretta.',
+  error: 'Controlla bene la scheda e le prescrizioni.',
+  scan: 'Bene, ora scansiona braccialetto e farmaco.',
+  identifiers: 'Clicca sui dati per verificarli. Ne servono 2.'
 };
 
 let gameState = {
@@ -198,10 +200,16 @@ function updateScoreDisplay() {
   set('speedScore', gameState.scores.speed);
   set('trustScore', gameState.scores.trust);
   set('medsDone', gameState.medsCorrect);
+  const prog = document.getElementById('progressPill');
+  if (prog) {
+    prog.textContent = `${gameState.completedPatients} di 4 pazienti`;
+    prog.classList.add('updated');
+    setTimeout(() => prog.classList.remove('updated'), 400);
+  }
 }
 
 function triggerRandomEvent() {
-  if (gameState.activeEvents.length >= 2) return;
+  if (gameState.activeEvents.length >= 3) return;
   const ev = DYNAMIC_EVENTS[Math.floor(Math.random() * DYNAMIC_EVENTS.length)];
   if (gameState.activeEvents.some(e => e.id === ev.id)) return;
   gameState.activeEvents.push(ev);
@@ -216,14 +224,24 @@ function triggerRandomEvent() {
   setTimeout(() => {
     div.remove();
     gameState.activeEvents = gameState.activeEvents.filter(e => e.id !== ev.id);
-  }, 8000);
+  }, 7000);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 function renderPatients() {
   const grid = document.getElementById('patientsGrid');
   if (!grid) return;
   grid.innerHTML = '';
-  PATIENTS.forEach(p => {
+  const order = shuffle(PATIENTS);
+  order.forEach(p => {
     const card = document.createElement('div');
     card.className = 'patient-card';
     card.dataset.id = p.id;
@@ -239,7 +257,11 @@ function renderPatients() {
         <div class="patient-trait">${p.trait}</div>
       </div>
     `;
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', `Apri scheda di ${p.name}, stanza ${p.room}`);
     card.addEventListener('click', () => openPatientCard(p));
+    card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPatientCard(p); } });
     grid.appendChild(card);
   });
 }
@@ -286,6 +308,7 @@ function openPatientCard(patient) {
     <button class="btn-open-patient primary-btn" id="btnOpenDecision" disabled>Procedi alla decisione</button>
   `;
 
+  updateGuide(HEAD_NURSE_MESSAGES.identifiers);
   content.querySelectorAll('.identifier-row').forEach(row => {
     row.addEventListener('click', () => verifyIdentifier(row));
   });
@@ -299,6 +322,7 @@ function openPatientCard(patient) {
 
   content.querySelector('#btnOpenDecision').addEventListener('click', () => {
     if (gameState.verifiedIdentifiers >= 2 && gameState.safetyChecked) {
+      updateGuide(HEAD_NURSE_MESSAGES.scan);
       showModal(modals.patient, false);
       openScanModal('bracelet');
     } else {
@@ -452,8 +476,11 @@ function initGame() {
   renderPatients();
   updateGuide(HEAD_NURSE_MESSAGES.start);
   startTimer();
-  setTimeout(triggerRandomEvent, 8000);
-  setTimeout(triggerRandomEvent, 20000);
+  // Eventi dinamici più frequenti
+  setTimeout(triggerRandomEvent, 4000);
+  setTimeout(triggerRandomEvent, 11000);
+  setTimeout(triggerRandomEvent, 18000);
+  setTimeout(triggerRandomEvent, 26000);
 
   showScreen(screens.game);
 }
@@ -462,8 +489,12 @@ document.getElementById('startBtn')?.addEventListener('click', initGame);
 
 document.querySelectorAll('.mode-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mode-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
   });
 });
 

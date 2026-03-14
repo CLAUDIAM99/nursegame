@@ -3,7 +3,7 @@
   --bg: #f7f9fc;
   --surface: #ffffff;
   --surface-soft: #f0f4f8;
-  --primary: #4a7c8c;
+  --primary: #3d6a7a;
   --primary-light: #6b9aa8;
   --accent: #e8a598;
   --accent-soft: #f5d4ce;
@@ -12,8 +12,8 @@
   --success: #5a9b7a;
   --warning: #d4a843;
   --danger: #c45c4a;
-  --text: #2d3e50;
-  --text-muted: #6b7c8d;
+  --text: #1e2d3a;
+  --text-muted: #5a6b7c;
   --radius: 14px;
   --radius-sm: 10px;
   --shadow: 0 2px 12px rgba(45, 62, 80, 0.08);
@@ -32,6 +32,10 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
 /* === App Shell === */
@@ -151,7 +155,32 @@ body.game-active .topbar-right { display: flex; }
   font-size: 1rem;
   line-height: 1.7;
   color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.how-to {
+  background: var(--surface-soft);
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-sm);
   margin-bottom: 1.5rem;
+}
+
+.how-to-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.how-to-list {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  padding-left: 1.25rem;
+}
+
+.how-to-list li {
+  margin-bottom: 0.25rem;
 }
 
 .mode-row {
@@ -161,7 +190,8 @@ body.game-active .topbar-right { display: flex; }
 }
 
 .mode-btn {
-  padding: 0.75rem 1.25rem;
+  padding: 0.85rem 1.35rem;
+  min-height: 44px;
   border: 2px solid transparent;
   border-radius: var(--radius-sm);
   background: var(--surface-soft);
@@ -186,6 +216,7 @@ body.game-active .topbar-right { display: flex; }
 
 .primary-btn {
   padding: 1rem 2rem;
+  min-height: 48px;
   background: linear-gradient(135deg, var(--primary), var(--teal));
   color: white;
   border: none;
@@ -369,7 +400,12 @@ body.game-active .topbar-right { display: flex; }
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  animation: slideIn 0.3s ease;
+  animation: slideIn 0.4s ease, subtle-pulse 3s ease-in-out 2;
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
 }
 
 @keyframes slideIn {
@@ -402,6 +438,28 @@ body.game-active .topbar-right { display: flex; }
   min-width: 0;
 }
 
+.progress-pill {
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  transition: transform 0.2s;
+}
+
+.progress-pill.updated {
+  animation: pulse-score 0.4s ease;
+}
+
+@keyframes pulse-score {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
 .patients-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -416,6 +474,12 @@ body.game-active .topbar-right { display: flex; }
   cursor: pointer;
   transition: all 0.25s ease;
   border: 2px solid transparent;
+  min-height: 120px;
+}
+
+.patient-card:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .patient-card:hover {
@@ -426,7 +490,14 @@ body.game-active .topbar-right { display: flex; }
 
 .patient-card.completed {
   border-color: var(--success);
-  opacity: 0.9;
+  opacity: 0.92;
+  animation: card-done 0.5s ease;
+}
+
+@keyframes card-done {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
 }
 
 .patient-header {
@@ -755,14 +826,24 @@ body.game-active .topbar-right { display: flex; }
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
+  min-height: 52px;
   font-family: var(--font);
   font-size: 1rem;
   font-weight: 600;
   border: 2px solid;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
   text-align: left;
+}
+
+.btn-decision:hover {
+  transform: translateX(4px);
+}
+
+.btn-decision:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .btn-somministra {
@@ -817,6 +898,8 @@ body.game-active .topbar-right { display: flex; }
 .toast.success { background: var(--success); color: white; }
 .toast.warning { background: var(--warning); color: white; }
 .toast.danger { background: var(--danger); color: white; }
+
+
 
 /* End Screen */
 #endScreen {

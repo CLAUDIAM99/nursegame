@@ -29,17 +29,27 @@
       <section id="startScreen" class="screen active">
         <div class="hero-card">
           <div class="hero-copy">
-            <p class="eyebrow">Benvenuta nel reparto</p>
+            <p class="eyebrow">Benvenuti nel reparto</p>
             <h2>Aiuta i pazienti, evita errori, gestisci il turno con calma.</h2>
             <p>
-              Non serve essere infermieri: qui contano attenzione, empatia e decisioni giuste.
-              Conosci i pazienti, controlla le medicine e affronta piccoli imprevisti.
+              Non serve essere infermieri: bastano attenzione, empatia e decisioni giuste.
+              Clicca su un paziente, controlla i dati, scansiona e scegli come procedere.
             </p>
-            <div class="mode-row">
-              <button class="mode-btn active" data-mode="calm">Modalità calma</button>
-              <button class="mode-btn" data-mode="challenge">Modalità sfida</button>
+            <div class="how-to">
+              <p class="how-to-title">Come si gioca</p>
+              <ol class="how-to-list">
+                <li>Clicca su un paziente</li>
+                <li>Verifica 2 dati (nome, stanza, ecc.)</li>
+                <li>Controlla allergie e note cliniche</li>
+                <li>Scansiona braccialetto e farmaco</li>
+                <li>Scegli: Somministra, Rimanda o Chiama medico</li>
+              </ol>
             </div>
-            <button id="startBtn" class="primary-btn">Inizia turno</button>
+            <div class="mode-row">
+              <button class="mode-btn active" data-mode="calm" aria-pressed="true">🌙 Calma – senza fretta</button>
+              <button class="mode-btn" data-mode="challenge" aria-pressed="false">⚡ Sfida – tempo extra</button>
+            </div>
+            <button id="startBtn" class="primary-btn" aria-label="Inizia il turno di gioco">Inizia turno</button>
           </div>
           <div class="hero-visual">
             <div class="hero-bubble bubble-a"></div>
@@ -51,7 +61,7 @@
             </div>
             <div class="guide-card">
               <span class="guide-dot"></span>
-              <p>Caposala: "Controlla bene chi hai davanti e ascolta ogni paziente."</p>
+              <p>Caposala: "Controlla sempre chi hai davanti e leggi bene le note cliniche."</p>
             </div>
           </div>
         </div>
@@ -63,21 +73,22 @@
             <div class="side-card">
               <h3>Caposala</h3>
               <p id="guideMessage">
-                Inizia dal paziente che ti sembra più semplice e fai attenzione agli alert.
+                Clicca su un paziente per iniziare. Segui le istruzioni passo passo e osserva gli avvisi nella colonna.
               </p>
             </div>
             <div class="side-card">
               <h3>Obiettivi</h3>
               <ul class="mini-list">
-                <li>Abbina paziente e medicina corretta.</li>
-                <li>Controlla eventuali allergie e note cliniche.</li>
-                <li>Verifica sempre due identificatori prima di somministrare.</li>
-                <li>Rispondi agli eventi del reparto.</li>
+                <li>Abbina paziente e medicina giusta</li>
+                <li>Controlla allergie e note cliniche</li>
+                <li>Verifica sempre 2 identificatori</li>
+                <li>Leggi gli avvisi che compaiono</li>
               </ul>
             </div>
             <div class="dynamic-events" id="dynamicEvents"></div>
           </aside>
           <div class="content-area">
+            <div class="progress-pill" id="progressPill">0 di 4 pazienti</div>
             <div class="patients-grid" id="patientsGrid"></div>
           </div>
         </div>
@@ -133,9 +144,9 @@
         <div class="barcode-area">
           <div class="scan-line"></div>
           <div class="barcode" id="barcodeDisplay"></div>
-          <p class="scan-hint">Premi per scansionare</p>
+          <p class="scan-hint">Clicca il pulsante "Scansiona" qui sotto</p>
         </div>
-        <button id="btnScan" class="primary-btn">Scansiona</button>
+        <button id="btnScan" class="primary-btn" aria-label="Scansiona braccialetto o farmaco">Scansiona</button>
       </div>
     </div>
   </div>
@@ -144,7 +155,7 @@
   <div id="decisionModal" class="modal">
     <div class="modal-backdrop"></div>
     <div class="modal-panel">
-      <h3>Come procedere?</h3>
+      <h3>Che scelta fai?</h3>
       <p class="decision-sub" id="decisionPatientName"></p>
       <div class="decision-btns">
         <button class="btn-decision btn-somministra" data-action="somministra">
