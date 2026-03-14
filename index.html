@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turno di Terapia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <!-- Start Screen -->
+    <section id="start-screen" class="screen active">
+      <div class="start-content">
+        <div class="logo-container">
+          <span class="logo-icon">⚕</span>
+          <h1 class="game-title">Turno di Terapia</h1>
+          <p class="game-subtitle">Simulatore infermieristico</p>
+        </div>
+        <div class="intro-text">
+          <p>Sei un infermiere in un reparto di degenza. Il tuo compito è somministrare i farmaci ai pazienti in sicurezza: verifica sempre l'identità, controlla le prescrizioni e rispondi agli eventi dinamici del reparto.</p>
+        </div>
+        <div class="mode-select">
+          <h3>Scegli la modalità</h3>
+          <div class="mode-buttons">
+            <button id="btn-calm" class="mode-btn active" data-mode="calm">
+              <span class="mode-icon">🌙</span>
+              <span class="mode-name">Modalità calma</span>
+              <span class="mode-desc">Tempo rilassato, nessun timer rigido</span>
+            </button>
+            <button id="btn-challenge" class="mode-btn" data-mode="challenge">
+              <span class="mode-icon">⚡</span>
+              <span class="mode-name">Modalità sfida</span>
+              <span class="mode-desc">Turno intenso con timer e bonus velocità</span>
+            </button>
+          </div>
+        </div>
+        <button id="btn-start" class="btn-primary">Inizia turno</button>
+      </div>
+    </section>
+
+    <!-- Game Screen -->
+    <section id="game-screen" class="screen">
+      <header class="game-header">
+        <div class="header-left">
+          <span class="shift-label">Turno in corso</span>
+          <div id="timer-display" class="timer">00:00</div>
+        </div>
+        <div class="header-center">
+          <div class="score-display">
+            <span class="score-item" id="score-safety"><span class="score-icon">🛡</span> Sicurezza: <strong>0</strong></span>
+            <span class="score-item" id="score-speed"><span class="score-icon">⚡</span> Velocità: <strong>0</strong></span>
+            <span class="score-item" id="score-trust"><span class="score-icon">❤</span> Fiducia: <strong>0</strong></span>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="meds-count">Farmaci: <strong id="meds-done">0</strong>/4</span>
+        </div>
+      </header>
+
+      <div class="head-nurse" id="head-nurse">
+        <div class="hn-avatar">👩‍⚕️</div>
+        <div class="hn-bubble">
+          <p id="hn-message">Benvenuta al turno! Controlla ogni paziente con attenzione.</p>
+          <span class="hn-name">Caposala Anna</span>
+        </div>
+      </div>
+
+      <main class="game-main">
+        <div class="patients-grid" id="patients-grid"></div>
+      </main>
+
+      <div class="dynamic-events" id="dynamic-events"></div>
+    </section>
+
+    <!-- Patient Card Modal -->
+    <div id="patient-modal" class="modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content patient-card-modal">
+        <button class="modal-close" id="modal-close">&times;</button>
+        <div id="patient-card-content"></div>
+      </div>
+    </div>
+
+    <!-- Barcode Scan Modal -->
+    <div id="scan-modal" class="modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content scan-modal-content">
+        <button class="modal-close" id="scan-close">&times;</button>
+        <div class="scan-container">
+          <h3 id="scan-title">Scansione braccialetto</h3>
+          <div class="barcode-area">
+            <div class="scan-line"></div>
+            <div class="barcode" id="barcode-display"></div>
+            <p class="scan-hint">Premi per scansionare</p>
+          </div>
+          <button id="btn-scan" class="btn-scan">Scansiona</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback Toast -->
+    <div id="feedback-toast" class="feedback-toast hidden">
+      <span class="feedback-icon"></span>
+      <span class="feedback-text"></span>
+    </div>
+
+    <!-- Decision Modal (somministra/rimanda/chiama medico) -->
+    <div id="decision-modal" class="modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content decision-modal-content">
+        <h3>Come procedere?</h3>
+        <p class="decision-patient-name" id="decision-patient-name"></p>
+        <div class="decision-buttons">
+          <button class="btn-decision btn-somministra" data-action="somministra">
+            <span class="btn-icon">✓</span>
+            <span>Somministra</span>
+          </button>
+          <button class="btn-decision btn-rimanda" data-action="rimanda">
+            <span class="btn-icon">→</span>
+            <span>Rimanda</span>
+          </button>
+          <button class="btn-decision btn-chiama" data-action="chiama">
+            <span class="btn-icon">📞</span>
+            <span>Chiama medico</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- End Screen -->
+    <section id="end-screen" class="screen">
+      <div class="end-content">
+        <h2 class="end-title">Fine del turno</h2>
+        <div class="end-summary">
+          <div class="summary-card">
+            <span class="summary-value" id="end-total-score">0</span>
+            <span class="summary-label">Punteggio totale</span>
+          </div>
+          <div class="summary-card">
+            <span class="summary-value" id="end-meds-correct">0</span>
+            <span class="summary-label">Farmaci somministrati correttamente</span>
+          </div>
+          <div class="summary-card">
+            <span class="summary-value" id="end-near-misses">0</span>
+            <span class="summary-label">Quasi errori evitati</span>
+          </div>
+          <div class="summary-card">
+            <span class="summary-value" id="end-errors">0</span>
+            <span class="summary-label">Errori commessi</span>
+          </div>
+        </div>
+        <div class="end-evaluation">
+          <h3>Valutazione</h3>
+          <p id="end-evaluation-text"></p>
+        </div>
+        <button id="btn-restart" class="btn-primary">Nuovo turno</button>
+      </div>
+    </section>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
