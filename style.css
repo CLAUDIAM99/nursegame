@@ -289,6 +289,13 @@ body {
   margin-bottom: 0.2rem;
 }
 
+.scene-box {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .customer-card {
   display: flex;
   align-items: center;
@@ -308,6 +315,179 @@ body {
 
 .customer-card strong { display: block; font-size: 1rem; }
 .customer-card .muted { font-size: 0.85rem; margin-top: 0.15rem; }
+
+/* Mama actor */
+.mama-actor {
+  position: relative;
+  width: 150px;
+  height: 220px;
+  transform-origin: center bottom;
+}
+
+.mama-head {
+  position: absolute;
+  top: 8px;
+  left: 34px;
+  width: 84px;
+  height: 92px;
+}
+
+.mama-actor .mama-hair {
+  position: absolute;
+  inset: 0;
+  background: #7f5b64;
+  border-radius: 48% 48% 42% 42%;
+}
+
+.mama-actor .mama-face {
+  position: absolute;
+  width: 64px;
+  height: 68px;
+  background: #ffd8bd;
+  border-radius: 46%;
+  left: 10px;
+  top: 16px;
+}
+
+.mama-eyes {
+  position: absolute;
+  width: 30px;
+  height: 8px;
+  left: 26px;
+  top: 42px;
+}
+
+.mama-eyes::before,
+.mama-eyes::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #5d4751;
+  border-radius: 50%;
+  top: 0;
+}
+
+.mama-eyes::before { left: 0; }
+.mama-eyes::after { right: 0; }
+
+.mama-torso {
+  position: absolute;
+  width: 86px;
+  height: 86px;
+  left: 32px;
+  top: 88px;
+  background: linear-gradient(180deg, #fff, #ffe1ea);
+  border-radius: 28px;
+}
+
+.mama-arm,
+.mama-leg {
+  position: absolute;
+  background: #ffd8bd;
+  border-radius: 999px;
+  transform-origin: top center;
+}
+
+.mama-arm {
+  width: 18px;
+  height: 72px;
+  top: 96px;
+}
+
+.arm-left { left: 26px; transform: rotate(18deg); }
+.arm-right { right: 24px; transform: rotate(-18deg); }
+
+.mama-leg {
+  width: 18px;
+  height: 56px;
+  top: 164px;
+}
+
+.leg-left { left: 50px; }
+.leg-right { left: 82px; }
+
+.actor-bubble {
+  position: absolute;
+  right: -70px;
+  top: 12px;
+  background: #fff;
+  color: var(--text-muted);
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 0.9rem;
+  font-weight: 900;
+  box-shadow: var(--shadow);
+  min-width: 110px;
+  text-align: center;
+}
+
+.mama-actor.idle {
+  animation: mamaIdle 1.8s ease-in-out infinite;
+}
+
+.mama-actor.pick .arm-right {
+  animation: pickArm 0.45s ease forwards;
+}
+
+.mama-actor.pour .arm-right {
+  animation: pourArm 0.5s ease-in-out 2 alternate;
+}
+
+.mama-actor.point .arm-left {
+  animation: pointArm 0.45s ease forwards;
+}
+
+.mama-actor.shake {
+  animation: shakeBody 0.18s linear infinite;
+}
+
+.mama-actor.success {
+  animation: happyJump 0.55s ease 2;
+}
+
+.mama-actor.fail {
+  animation: sadTilt 0.6s ease 1;
+}
+
+@keyframes mamaIdle {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-4px) rotate(1deg); }
+}
+
+@keyframes pickArm {
+  0% { transform: rotate(-18deg); }
+  100% { transform: rotate(-70deg) translateY(-4px); }
+}
+
+@keyframes pourArm {
+  0% { transform: rotate(-18deg); }
+  100% { transform: rotate(-110deg); }
+}
+
+@keyframes pointArm {
+  0% { transform: rotate(18deg); }
+  100% { transform: rotate(72deg) translateX(6px); }
+}
+
+@keyframes shakeBody {
+  0% { transform: translateX(-4px) rotate(-6deg); }
+  50% { transform: translateX(4px) rotate(6deg); }
+  100% { transform: translateX(-4px) rotate(-6deg); }
+}
+
+@keyframes happyJump {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes sadTilt {
+  0% { transform: rotate(0); }
+  30% { transform: rotate(-8deg); }
+  60% { transform: rotate(6deg); }
+  100% { transform: rotate(0); }
+}
 
 /* Game layout */
 .game-layout {

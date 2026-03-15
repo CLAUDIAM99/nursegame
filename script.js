@@ -16,6 +16,8 @@ const orderText = document.getElementById("orderText");
 const customerAvatar = document.getElementById("customerAvatar");
 const customerName = document.getElementById("customerName");
 const customerMood = document.getElementById("customerMood");
+const mamaActor = document.getElementById("mamaActor");
+const actorBubble = document.getElementById("actorBubble");
 
 const flavorGrid = document.getElementById("flavorGrid");
 const iceFill = document.getElementById("iceFill");
@@ -117,6 +119,20 @@ function setGrade(text, type) {
   lastGrade.className = `grade-badge ${type}`;
 }
 
+function setMamaState(state, bubbleText) {
+  if (!mamaActor || !actorBubble) return;
+  mamaActor.className = "mama-actor " + (state || "idle");
+  actorBubble.textContent = bubbleText || "Pronta!";
+  var once = state === "success" || state === "fail" || state === "pick" || state === "pour" || state === "point";
+  if (once) {
+    var duration = state === "success" || state === "fail" ? 700 : 550;
+    setTimeout(function() {
+      mamaActor.className = "mama-actor idle";
+      actorBubble.textContent = "Pronta!";
+    }, duration);
+  }
+}
+
 function showGradePopup(text) {
   gradePopupText.textContent = text;
   gradePopup.classList.remove("hidden");
@@ -141,6 +157,7 @@ function loadOrder() {
   updateStarsRow();
   setGrade("Ready?", "neutral");
   helperText.textContent = "Completa il mini-game nel tempo giusto.";
+  setMamaState("idle", "Pronta!");
 }
 
 function goToStep(step) {
@@ -160,9 +177,11 @@ function goToStep(step) {
   if (step === 1) {
     renderFlavors();
     helperText.textContent = "Scegli il gusto giusto per questo ordine.";
+    setMamaState("point", "Scegli il gusto!");
   } else if (step === 2) {
     startIceMeter();
     helperText.textContent = "Ferma la barra nella zona verde!";
+    setMamaState("pour", "Ferma il ghiaccio!");
   } else if (step === 3) {
     toppingDropped = false;
     cupToppingVisual.style.background = "transparent";
@@ -170,12 +189,14 @@ function goToStep(step) {
     cupDropzone.classList.remove("dropped");
     renderToppings();
     helperText.textContent = "Trascina il topping corretto nel bicchiere.";
+    setMamaState("pick", "Trascina qui!");
   } else if (step === 4) {
     shakeCount = 0;
     shakeProgress.style.width = "0%";
     shakeLabel.textContent = `Tap 0 / ${SHAKE_GOAL}`;
     shakeCup.classList.remove("shaking");
     helperText.textContent = "Clicca SHAKE! 16 volte.";
+    setMamaState("shake", "Shakera!");
   }
 }
 
@@ -193,6 +214,7 @@ function tickTimer() {
 function failStep(reason) {
   setGrade(reason, "bad");
   showGradePopup("Oops!");
+  setMamaState("fail", "Oops!");
   nextBtn.disabled = false;
   if (iceInterval) {
     clearInterval(iceInterval);
@@ -208,6 +230,7 @@ function passStep(message) {
   scoreValueEl.textContent = totalScore;
   setGrade(message, "good");
   showGradePopup("Nice!");
+  setMamaState("success", "Perfetto!");
   nextBtn.disabled = false;
   if (iceInterval) {
     clearInterval(iceInterval);
