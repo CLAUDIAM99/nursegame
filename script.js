@@ -4,282 +4,232 @@ const endScreen = document.getElementById("endScreen");
 
 const startBtn = document.getElementById("startBtn");
 const restartBtn = document.getElementById("restartBtn");
+const nextBtn = document.getElementById("nextBtn");
 
-const roundLabel = document.getElementById("roundLabel");
-const starsLabel = document.getElementById("starsLabel");
-const timerLabel = document.getElementById("timerLabel");
+const stepLabel = document.getElementById("stepLabel");
+const scoreLabel = document.getElementById("scoreLabel");
+const orderName = document.getElementById("orderName");
+const orderRequest = document.getElementById("orderRequest");
 
-const patientAvatar = document.getElementById("patientAvatar");
-const patientName = document.getElementById("patientName");
-const patientMood = document.getElementById("patientMood");
-const patientDialogue = document.getElementById("patientDialogue");
+const flavorChoices = document.getElementById("flavorChoices");
+const toppingChoices = document.getElementById("toppingChoices");
+const iceBar = document.getElementById("iceBar");
+const targetZone = document.getElementById("targetZone");
+const stopIceBtn = document.getElementById("stopIceBtn");
 
-const braceletChoices = document.getElementById("braceletChoices");
-const medicineChoices = document.getElementById("medicineChoices");
-const selectedMedicine = document.getElementById("selectedMedicine");
-const trayDropzone = document.getElementById("trayDropzone");
-const deliverBtn = document.getElementById("deliverBtn");
-const skipBtn = document.getElementById("skipBtn");
-const feedbackBox = document.getElementById("feedbackBox");
+const cup = document.getElementById("cup");
+const shakeBtn = document.getElementById("shakeBtn");
+const shakeCountEl = document.getElementById("shakeCount");
 
-const resultTitle = document.getElementById("resultTitle");
-const starsBig = document.getElementById("starsBig");
-const resultText = document.getElementById("resultText");
+const feedback = document.getElementById("feedback");
+const endTitle = document.getElementById("endTitle");
+const starView = document.getElementById("starView");
+const endText = document.getElementById("endText");
 
-const rounds = [
+const orders = [
   {
-    patient: "Adele",
-    mood: "Si sente un po' confusa ma sorride.",
-    dialogue: "Ciao tesoro, questa medicina è proprio per me?",
-    avatar: "peach",
-    correctBracelet: "Adele R.",
-    bracelets: ["Adele R.", "Marta P.", "Leo T."],
-    correctMedicine: "Pillola blu",
-    medicines: [
-      { name: "Pillola blu", color: "#9dcbff" },
-      { name: "Sciroppo rosa", color: "#ffb6cd" },
-      { name: "Capsula verde", color: "#9be2b0" }
-    ]
+    name: "Milk Tea Fragola",
+    request: "Vuole ghiaccio medio e perle nere.",
+    flavor: "Fragola",
+    flavors: ["Fragola", "Mango", "Matcha"],
+    topping: "Perle nere",
+    toppings: ["Perle nere", "Lychee", "Pudding"]
   },
   {
-    patient: "Leo",
-    mood: "È attento e vuole controllare tutto.",
-    dialogue: "Prima leggiamo bene il mio nome, ok?",
-    avatar: "blue",
-    correctBracelet: "Leo T.",
-    bracelets: ["Nina V.", "Leo T.", "Bruno L."],
-    correctMedicine: "Capsula verde",
-    medicines: [
-      { name: "Bustina gialla", color: "#ffe27a" },
-      { name: "Capsula verde", color: "#98e3af" },
-      { name: "Pillola lilla", color: "#d7c0ff" }
-    ]
+    name: "Tè Verde Matcha",
+    request: "Poco ghiaccio e lychee.",
+    flavor: "Matcha",
+    flavors: ["Fragola", "Matcha", "Taro"],
+    topping: "Lychee",
+    toppings: ["Perle nere", "Lychee", "Pudding"]
   },
   {
-    patient: "Marta",
-    mood: "È tranquilla ma un po' stanca.",
-    dialogue: "Grazie per andare piano, mi aiuta molto.",
-    avatar: "purple",
-    correctBracelet: "Marta P.",
-    bracelets: ["Gino S.", "Marta P.", "Adele R."],
-    correctMedicine: "Pillola lilla",
-    medicines: [
-      { name: "Pillola lilla", color: "#d6c0ff" },
-      { name: "Sciroppo arancio", color: "#ffc28c" },
-      { name: "Capsula verde", color: "#98e3af" }
-    ]
-  },
-  {
-    patient: "Gino",
-    mood: "È allegro e fa sempre una battuta.",
-    dialogue: "Se mi porti quella giusta ti regalo un sorriso!",
-    avatar: "yellow",
-    correctBracelet: "Gino S.",
-    bracelets: ["Gino S.", "Adele R.", "Leo T."],
-    correctMedicine: "Bustina gialla",
-    medicines: [
-      { name: "Bustina gialla", color: "#ffe27a" },
-      { name: "Pillola blu", color: "#9dcbff" },
-      { name: "Gocce rosa", color: "#ffb8ca" }
-    ]
+    name: "Milk Tea Taro",
+    request: "Ghiaccio normale e pudding.",
+    flavor: "Taro",
+    flavors: ["Taro", "Mango", "Fragola"],
+    topping: "Pudding",
+    toppings: ["Lychee", "Pudding", "Perle nere"]
   }
 ];
 
-let currentRound = 0;
+let currentOrder = null;
+let currentStep = 1;
 let stars = 0;
-let timer = 15;
-let interval = null;
+let stepStars = 0;
+let iceInterval = null;
+let iceWidth = 0;
+let iceSpeed = 2;
+let shakeCount = 0;
+const SHAKE_GOAL = 12;
 
-let chosenBracelet = null;
-let chosenMedicine = null;
-let trayLoaded = false;
-
-startBtn.addEventListener("click", startGame);
-restartBtn.addEventListener("click", restartGame);
-deliverBtn.addEventListener("click", deliverRound);
-skipBtn.addEventListener("click", skipRound);
-trayDropzone.addEventListener("click", loadTray);
-
-function startGame() {
-  currentRound = 0;
-  stars = 0;
-  startScreen.classList.remove("active");
-  endScreen.classList.remove("active");
-  gameScreen.classList.add("active");
-  document.body.classList.add("game-active");
-  loadRound();
-}
-
-function restartGame() {
-  clearInterval(interval);
-  document.body.classList.remove("game-active");
-  startScreen.classList.add("active");
-  gameScreen.classList.remove("active");
-  endScreen.classList.remove("active");
-}
-
-function loadRound() {
-  clearInterval(interval);
-
-  const round = rounds[currentRound];
-  if (!round) {
-    endGame();
-    return;
-  }
-
-  chosenBracelet = null;
-  chosenMedicine = null;
-  trayLoaded = false;
-  timer = 15;
-
-  roundLabel.textContent = currentRound + 1;
-  starsLabel.textContent = stars;
-  timerLabel.textContent = timer;
-
-  patientAvatar.className = `patient-avatar omino-wrapper ${round.avatar}`;
-  patientName.textContent = round.patient;
-  patientMood.textContent = round.mood;
-  patientDialogue.textContent = `"${round.dialogue}"`;
-
-  selectedMedicine.textContent = "Nessuna medicina scelta";
-  trayDropzone.textContent = "Vassoio";
-  trayDropzone.classList.remove("ready");
-  feedbackBox.textContent = "Pronta? Scegli la medicina e completa il mini gioco.";
-  feedbackBox.className = "feedback-box neutral";
-
-  renderBracelets(round);
-  renderMedicines(round);
-  startRoundTimer();
-}
-
-function renderBracelets(round) {
-  braceletChoices.innerHTML = "";
-  round.bracelets.forEach(name => {
-    const btn = document.createElement("button");
-    btn.className = "bracelet-option";
-    btn.textContent = name;
-    btn.addEventListener("click", () => {
-      chosenBracelet = name;
-      document.querySelectorAll(".bracelet-option").forEach(el => el.classList.remove("correct", "wrong"));
-      if (name === round.correctBracelet) {
-        btn.classList.add("correct");
-        setFeedback("Braccialetto giusto! Adesso scegli o trascina la medicina.", "good");
-      } else {
-        btn.classList.add("wrong");
-        setFeedback("Ops! Quel braccialetto non è corretto.", "bad");
-      }
-    });
-    braceletChoices.appendChild(btn);
-  });
-}
-
-function renderMedicines(round) {
-  medicineChoices.innerHTML = "";
-  round.medicines.forEach(med => {
-    const card = document.createElement("div");
-    card.className = "medicine-option";
-    card.innerHTML = `
-      <div class="medicine-icon" style="background:${med.color};"></div>
-      <strong>${med.name}</strong>
-    `;
-    card.addEventListener("click", () => {
-      chosenMedicine = med.name;
-      document.querySelectorAll(".medicine-option").forEach(el => el.classList.remove("selected"));
-      card.classList.add("selected");
-      selectedMedicine.textContent = `Hai scelto: ${med.name}`;
-      setFeedback("Perfetto, ora tocca il vassoio per preparare la consegna.", "neutral");
-    });
-    medicineChoices.appendChild(card);
-  });
-}
-
-function loadTray() {
-  if (!chosenMedicine) {
-    setFeedback("Prima scegli una medicina.", "bad");
-    return;
-  }
-  trayLoaded = true;
-  trayDropzone.classList.add("ready");
-  trayDropzone.textContent = `Pronto: ${chosenMedicine}`;
-  setFeedback("Vassoio preparato! Ora puoi consegnare.", "good");
-}
-
-function deliverRound() {
-  const round = rounds[currentRound];
-  let points = 0;
-
-  if (chosenBracelet === round.correctBracelet) points += 1;
-  if (chosenMedicine === round.correctMedicine) points += 1;
-  if (trayLoaded) points += 1;
-
-  if (points === 3) {
-    stars += 3;
-    setFeedback("Yay! Tutto perfetto, paziente felicissimo!", "good");
-  } else if (points === 2) {
-    stars += 2;
-    setFeedback("Quasi perfetto! Buona consegna.", "neutral");
-  } else if (points === 1) {
-    stars += 1;
-    setFeedback("Hai completato il round, ma con un po' di confusione.", "bad");
-  } else {
-    setFeedback("Ops! Round da rifare meglio.", "bad");
-  }
-
-  starsLabel.textContent = stars;
-
-  setTimeout(() => {
-    currentRound += 1;
-    loadRound();
-  }, 1100);
-}
-
-function skipRound() {
-  setFeedback("Hai saltato questo paziente. Andiamo avanti!", "neutral");
-  setTimeout(() => {
-    currentRound += 1;
-    loadRound();
-  }, 900);
-}
-
-function startRoundTimer() {
-  clearInterval(interval);
-  interval = setInterval(() => {
-    timer -= 1;
-    timerLabel.textContent = timer;
-
-    if (timer <= 0) {
-      clearInterval(interval);
-      setFeedback("Tempo scaduto! Passiamo al prossimo paziente.", "bad");
-      setTimeout(() => {
-        currentRound += 1;
-        loadRound();
-      }, 900);
-    }
-  }, 1000);
+function showScreen(screen) {
+  [startScreen, gameScreen, endScreen].forEach(s => s.classList.remove("active"));
+  screen.classList.add("active");
 }
 
 function setFeedback(text, type) {
-  feedbackBox.textContent = text;
-  feedbackBox.className = `feedback-box ${type}`;
+  feedback.textContent = text;
+  feedback.className = `feedback ${type}`;
+}
+
+function renderOrder() {
+  const order = orders[Math.floor(Math.random() * orders.length)];
+  currentOrder = order;
+  orderName.textContent = order.name;
+  orderRequest.textContent = order.request;
+}
+
+function goToStep(step) {
+  document.querySelectorAll(".step-card").forEach(c => c.classList.remove("active-step"));
+  const el = document.getElementById("step" + step);
+  if (el) el.classList.add("active-step");
+  currentStep = step;
+  stepLabel.textContent = step;
+  nextBtn.disabled = true;
+
+  if (step === 1) {
+    renderFlavors();
+    setFeedback("Scegli il gusto giusto per questo ordine.", "neutral");
+  } else if (step === 2) {
+    startIceMeter();
+    setFeedback("Ferma la barra nella zona verde!", "neutral");
+  } else if (step === 3) {
+    renderToppings();
+    setFeedback("Scegli il topping richiesto.", "neutral");
+  } else if (step === 4) {
+    shakeCount = 0;
+    shakeCountEl.textContent = `Shake: 0 / ${SHAKE_GOAL}`;
+    cup.classList.remove("shaking");
+    setFeedback("Clicca Shake! fino a 12 volte.", "neutral");
+  }
+}
+
+function renderFlavors() {
+  flavorChoices.innerHTML = "";
+  currentOrder.flavors.forEach(name => {
+    const btn = document.createElement("button");
+    btn.className = "choice-btn";
+    btn.textContent = name;
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#flavorChoices .choice-btn").forEach(b => b.classList.remove("correct", "wrong"));
+      if (name === currentOrder.flavor) {
+        btn.classList.add("correct");
+        stepStars += 1;
+        setFeedback("Gusto perfetto!", "good");
+      } else {
+        btn.classList.add("wrong");
+        setFeedback("Questo ordine vuole un altro gusto.", "bad");
+      }
+      nextBtn.disabled = false;
+    });
+    flavorChoices.appendChild(btn);
+  });
+}
+
+function startIceMeter() {
+  iceWidth = 0;
+  iceBar.style.width = "0%";
+  if (iceInterval) clearInterval(iceInterval);
+  iceInterval = setInterval(() => {
+    iceWidth += iceSpeed;
+    if (iceWidth >= 100) iceWidth = 0;
+    iceBar.style.width = iceWidth + "%";
+  }, 50);
+}
+
+function stopIceMeter() {
+  if (!iceInterval) return;
+  clearInterval(iceInterval);
+  iceInterval = null;
+  const zoneStart = 39;
+  const zoneEnd = 61;
+  if (iceWidth >= zoneStart && iceWidth <= zoneEnd) {
+    stepStars += 1;
+    setFeedback("Ghiaccio perfetto!", "good");
+  } else {
+    setFeedback("La barra doveva fermarsi nella zona verde.", "bad");
+  }
+  nextBtn.disabled = false;
+}
+
+function renderToppings() {
+  toppingChoices.innerHTML = "";
+  currentOrder.toppings.forEach(name => {
+    const btn = document.createElement("button");
+    btn.className = "choice-btn";
+    btn.textContent = name;
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#toppingChoices .choice-btn").forEach(b => b.classList.remove("correct", "wrong"));
+      if (name === currentOrder.topping) {
+        btn.classList.add("correct");
+        stepStars += 1;
+        setFeedback("Topping giusto!", "good");
+      } else {
+        btn.classList.add("wrong");
+        setFeedback("L'ordine chiede un altro topping.", "bad");
+      }
+      nextBtn.disabled = false;
+    });
+    toppingChoices.appendChild(btn);
+  });
+}
+
+function doShake() {
+  shakeCount++;
+  shakeCountEl.textContent = `Shake: ${shakeCount} / ${SHAKE_GOAL}`;
+  cup.classList.add("shaking");
+  setTimeout(() => cup.classList.remove("shaking"), 150);
+  if (shakeCount >= SHAKE_GOAL) {
+    stepStars += 1;
+    setFeedback("Shake completato! Clicca Avanti.", "good");
+    nextBtn.disabled = false;
+  }
+}
+
+function nextStep() {
+  if (currentStep < 4) {
+    goToStep(currentStep + 1);
+  } else {
+    stars = stepStars;
+    scoreLabel.textContent = stars;
+    endGame();
+  }
 }
 
 function endGame() {
-  clearInterval(interval);
-  document.body.classList.remove("game-active");
-  gameScreen.classList.remove("active");
-  endScreen.classList.add("active");
-
+  showScreen(endScreen);
   if (stars >= 10) {
-    resultTitle.textContent = "Super dolcezza!";
-    starsBig.textContent = "⭐ ⭐ ⭐";
-    resultText.textContent = "Hai giocato con attenzione, ritmo e precisione. Reparto felicissimo.";
+    endTitle.textContent = "Carinissimo!";
+    starView.textContent = "⭐ ⭐ ⭐";
+    endText.textContent = "Hai preparato bubble tea deliziosi. I clienti sono felicissimi!";
   } else if (stars >= 6) {
-    resultTitle.textContent = "Brava!";
-    starsBig.textContent = "⭐ ⭐";
-    resultText.textContent = "Hai completato bene il turno. Ancora un po' di pratica e sarai perfetta.";
+    endTitle.textContent = "Brava!";
+    starView.textContent = "⭐ ⭐";
+    endText.textContent = "Ottimo lavoro. Ancora un po' di pratica e sarai perfetta.";
   } else {
-    resultTitle.textContent = "Hai fatto del tuo meglio!";
-    starsBig.textContent = "⭐";
-    resultText.textContent = "Sei all'inizio, ma round dopo round andrai sempre meglio.";
+    endTitle.textContent = "Continua a provare!";
+    starView.textContent = "⭐";
+    endText.textContent = "I primi ordini sono i più difficili. Rigioca per migliorare.";
   }
 }
+
+function startGame() {
+  currentStep = 1;
+  stars = 0;
+  stepStars = 0;
+  scoreLabel.textContent = "0";
+  renderOrder();
+  goToStep(1);
+  showScreen(gameScreen);
+}
+
+function restartGame() {
+  showScreen(startScreen);
+}
+
+startBtn.addEventListener("click", startGame);
+restartBtn.addEventListener("click", restartGame);
+nextBtn.addEventListener("click", nextStep);
+stopIceBtn.addEventListener("click", stopIceMeter);
+shakeBtn.addEventListener("click", doShake);

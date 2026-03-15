@@ -3,107 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Turno Sereno</title>
+  <title>Bubble Tea Mama</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app">
     <header class="topbar">
       <div>
-        <p class="eyebrow">Cozy hospital game</p>
-        <h1>Turno Sereno</h1>
+        <p class="eyebrow">Cute mini game</p>
+        <h1>Bubble Tea Mama</h1>
       </div>
-      <div class="topbar-right game-stats" id="gameStats">
-        <span class="stat">Round <span id="roundLabel">1</span></span>
-        <span class="stat">⭐ <span id="starsLabel">0</span></span>
-        <span class="stat">⏱ <span id="timerLabel">15</span></span>
+      <div class="hud">
+        <div class="pill">Step <span id="stepLabel">1</span>/4</div>
+        <div class="pill">Stelle <span id="scoreLabel">0</span></div>
       </div>
     </header>
 
-    <main id="screenContainer">
+    <main>
       <section id="startScreen" class="screen active">
-        <div class="hero-card">
-          <div class="hero-copy">
-            <p class="eyebrow">Benvenuti nel reparto</p>
-            <h2>Aiuta i pazienti, scegli braccialetto e medicina giusti.</h2>
-            <p>
-              Ogni round: identifica il paziente giusto dal braccialetto,
-              scegli la medicina corretta, prepara il vassoio e consegna.
-            </p>
-            <button id="startBtn" class="primary-btn">Inizia turno</button>
+        <div class="start-card">
+          <div class="left">
+            <p class="eyebrow">Stile casual</p>
+            <h2>Prepara bubble tea super carini con mini giochi veloci.</h2>
+            <p>Ogni ordine ha 4 step: scegli il gusto, dosa il ghiaccio, aggiungi topping e shakera al momento giusto.</p>
+            <button id="startBtn" class="primary-btn">Inizia</button>
           </div>
-          <div class="hero-visual">
-            <div class="hero-bubble bubble-a"></div>
-            <div class="hero-bubble bubble-b"></div>
-            <div class="nurse-avatar big">
-              <div class="hair"></div>
-              <div class="face"></div>
-              <div class="body"></div>
-            </div>
+          <div class="right">
+            <div class="mama"></div>
+            <div class="speech">"Facciamolo dolcissimo!"</div>
           </div>
         </div>
       </section>
 
       <section id="gameScreen" class="screen">
-        <div class="game-layout">
-          <div class="patient-section">
-            <div class="patient-card">
-              <div class="patient-avatar omino-wrapper" id="patientAvatar">
-              <div class="omino">
-                <div class="omino-head">
-                  <div class="omino-hair"></div>
-                  <div class="omino-face">
-                    <div class="omino-eyes"></div>
-                    <div class="omino-mouth"></div>
-                  </div>
-                </div>
-                <div class="omino-body"></div>
-              </div>
-            </div>
-              <h2 id="patientName">Paziente</h2>
-              <p class="patient-mood" id="patientMood"></p>
-              <p class="patient-dialogue" id="patientDialogue"></p>
+        <div class="order-card">
+          <p class="eyebrow">Ordine</p>
+          <h2 id="orderName">Milk Tea Fragola</h2>
+          <p id="orderRequest">Vuole ghiaccio medio e perle nere.</p>
+        </div>
+
+        <div id="step1" class="step-card active-step">
+          <p class="eyebrow">Step 1</p>
+          <h3>Scegli il gusto giusto</h3>
+          <div id="flavorChoices" class="choice-grid"></div>
+        </div>
+
+        <div id="step2" class="step-card">
+          <p class="eyebrow">Step 2</p>
+          <h3>Ferma il ghiaccio al punto giusto</h3>
+          <div class="meter-wrap">
+            <div class="meter">
+              <div id="iceBar" class="ice-bar"></div>
+              <div id="targetZone" class="target-zone"></div>
             </div>
           </div>
+          <button id="stopIceBtn" class="primary-btn">Stop</button>
+        </div>
 
-          <div class="actions-section">
-            <div class="action-block">
-              <h3>Quale braccialetto?</h3>
-              <div class="bracelet-choices" id="braceletChoices"></div>
-            </div>
+        <div id="step3" class="step-card">
+          <p class="eyebrow">Step 3</p>
+          <h3>Aggiungi il topping giusto</h3>
+          <div id="toppingChoices" class="choice-grid"></div>
+        </div>
 
-            <div class="action-block">
-              <h3>Scegli la medicina</h3>
-              <div class="medicine-choices" id="medicineChoices"></div>
-              <p class="selected-info" id="selectedMedicine">Nessuna medicina scelta</p>
-            </div>
-
-            <div class="action-block">
-              <h3>Vassoio</h3>
-              <div class="tray-dropzone" id="trayDropzone">Vassoio</div>
-            </div>
-
-            <div class="feedback-box neutral" id="feedbackBox">
-              Pronta? Scegli la medicina e completa il mini gioco.
-            </div>
-
-            <div class="game-buttons">
-              <button id="deliverBtn" class="primary-btn">Consegna</button>
-              <button id="skipBtn" class="secondary-btn">Salta</button>
-            </div>
+        <div id="step4" class="step-card">
+          <p class="eyebrow">Step 4</p>
+          <h3>Shakera velocemente</h3>
+          <div class="shake-zone">
+            <div id="cup" class="cup"></div>
           </div>
+          <button id="shakeBtn" class="primary-btn">Shake!</button>
+          <p id="shakeCount">Shake: 0 / 12</p>
+        </div>
+
+        <div class="bottom-row">
+          <div id="feedback" class="feedback neutral">Pronta a iniziare?</div>
+          <button id="nextBtn" class="secondary-btn" disabled>Avanti</button>
         </div>
       </section>
 
       <section id="endScreen" class="screen">
         <div class="end-card">
-          <h2 id="resultTitle">Fine del turno</h2>
-          <p class="stars-big" id="starsBig">⭐ ⭐ ⭐</p>
-          <p class="result-text" id="resultText"></p>
-          <button id="restartBtn" class="primary-btn">Nuovo turno</button>
+          <p class="eyebrow">Risultato</p>
+          <h2 id="endTitle">Carinissimo!</h2>
+          <div id="starView" class="star-view">⭐ ⭐ ⭐</div>
+          <p id="endText">Hai preparato un bubble tea delizioso.</p>
+          <button id="restartBtn" class="primary-btn">Rigioca</button>
         </div>
       </section>
     </main>
