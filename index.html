@@ -6,95 +6,147 @@
   <title>Bubble Tea Mama</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Cute mini game</p>
-        <h1>Bubble Tea Mama</h1>
-      </div>
-      <div class="hud">
-        <div class="pill">Step <span id="stepLabel">1</span>/4</div>
-        <div class="pill">Stelle <span id="scoreLabel">0</span></div>
-      </div>
+    <div class="bg-deco deco-a"></div>
+    <div class="bg-deco deco-b"></div>
+    <div class="bg-deco deco-c"></div>
+
+    <header class="hud">
+      <div class="hud-pill">Ordine <span id="orderIndex">1</span>/3</div>
+      <div class="hud-pill">Step <span id="stepIndex">1</span>/4</div>
+      <div class="hud-pill">Punti <span id="scoreValue">0</span></div>
+      <div class="hud-pill timer-pill">Tempo <span id="timerValue">10</span></div>
     </header>
 
     <main>
       <section id="startScreen" class="screen active">
-        <div class="start-card">
-          <div class="left">
-            <p class="eyebrow">Stile casual</p>
-            <h2>Prepara bubble tea super carini con mini giochi veloci.</h2>
-            <p>Ogni ordine ha 4 step: scegli il gusto, dosa il ghiaccio, aggiungi topping e shakera al momento giusto.</p>
-            <button id="startBtn" class="primary-btn">Inizia</button>
+        <div class="panel start-panel">
+          <div class="start-copy">
+            <p class="eyebrow">Cute arcade game</p>
+            <h1>Bubble Tea Mama</h1>
+            <p class="lead">
+              Prepara ordini super carini con mini-giochi veloci:
+              scegli il gusto, ferma il ghiaccio, trascina il topping e shakera al ritmo giusto.
+            </p>
+            <button id="startBtn" class="primary-btn">Play</button>
           </div>
-          <div class="right">
-            <div class="mama"></div>
-            <div class="speech">"Facciamolo dolcissimo!"</div>
+
+          <div class="mama-wrap">
+            <div class="mama">
+              <div class="mama-hair"></div>
+              <div class="mama-face"></div>
+              <div class="mama-body"></div>
+            </div>
+            <div class="speech">"Make it cute!"</div>
           </div>
         </div>
       </section>
 
       <section id="gameScreen" class="screen">
-        <div class="order-card">
-          <p class="eyebrow">Ordine</p>
-          <h2 id="orderName">Milk Tea Fragola</h2>
-          <p id="orderRequest">Vuole ghiaccio medio e perle nere.</p>
-        </div>
-
-        <div id="step1" class="step-card active-step">
-          <p class="eyebrow">Step 1</p>
-          <h3>Scegli il gusto giusto</h3>
-          <div id="flavorChoices" class="choice-grid"></div>
-        </div>
-
-        <div id="step2" class="step-card">
-          <p class="eyebrow">Step 2</p>
-          <h3>Ferma il ghiaccio al punto giusto</h3>
-          <div class="meter-wrap">
-            <div class="meter">
-              <div id="iceBar" class="ice-bar"></div>
-              <div id="targetZone" class="target-zone"></div>
+        <div class="top-order panel">
+          <div>
+            <p class="eyebrow">Ordine attuale</p>
+            <h2 id="orderTitle">Classic Strawberry</h2>
+            <p id="orderText" class="muted">Fragola, ghiaccio medio, perle nere.</p>
+          </div>
+          <div class="customer-card">
+            <div id="customerAvatar" class="customer-avatar avatar-pink"></div>
+            <div>
+              <strong id="customerName">Mimi</strong>
+              <p id="customerMood" class="muted">"Lo voglio dolcissimo!"</p>
             </div>
           </div>
-          <button id="stopIceBtn" class="primary-btn">Stop</button>
         </div>
 
-        <div id="step3" class="step-card">
-          <p class="eyebrow">Step 3</p>
-          <h3>Aggiungi il topping giusto</h3>
-          <div id="toppingChoices" class="choice-grid"></div>
-        </div>
+        <div class="game-layout">
+          <section class="play-area panel">
+            <div id="step1" class="step-screen active-step">
+              <p class="eyebrow">Step 1</p>
+              <h2>Scegli il gusto giusto</h2>
+              <div id="flavorGrid" class="choice-grid"></div>
+            </div>
 
-        <div id="step4" class="step-card">
-          <p class="eyebrow">Step 4</p>
-          <h3>Shakera velocemente</h3>
-          <div class="shake-zone">
-            <div id="cup" class="cup"></div>
-          </div>
-          <button id="shakeBtn" class="primary-btn">Shake!</button>
-          <p id="shakeCount">Shake: 0 / 12</p>
-        </div>
+            <div id="step2" class="step-screen">
+              <p class="eyebrow">Step 2</p>
+              <h2>Ferma il ghiaccio nella zona verde</h2>
+              <div class="meter-box">
+                <div class="meter-track">
+                  <div id="iceFill" class="ice-fill"></div>
+                  <div class="target-band"></div>
+                </div>
+              </div>
+              <button id="stopIceBtn" class="primary-btn">Stop!</button>
+            </div>
 
-        <div class="bottom-row">
-          <div id="feedback" class="feedback neutral">Pronta a iniziare?</div>
-          <button id="nextBtn" class="secondary-btn" disabled>Avanti</button>
+            <div id="step3" class="step-screen">
+              <p class="eyebrow">Step 3</p>
+              <h2>Trascina il topping nel bicchiere</h2>
+              <div class="drag-game">
+                <div id="toppingGrid" class="topping-grid"></div>
+                <div id="cupDropzone" class="cup-dropzone">
+                  <div class="cup-visual">
+                    <div class="straw"></div>
+                    <div class="tea"></div>
+                    <div id="cupToppingVisual" class="cup-topping-visual"></div>
+                  </div>
+                  <span>Drop here</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="step4" class="step-screen">
+              <p class="eyebrow">Step 4</p>
+              <h2>Shakera velocemente</h2>
+              <div class="shake-stage">
+                <div id="shakeCup" class="shake-cup">
+                  <div class="straw"></div>
+                  <div class="tea"></div>
+                </div>
+                <div class="shake-meter">
+                  <div id="shakeProgress" class="shake-progress"></div>
+                </div>
+                <p id="shakeLabel" class="muted">Tap 0 / 16</p>
+              </div>
+              <button id="shakeBtn" class="primary-btn">SHAKE!</button>
+            </div>
+          </section>
+
+          <aside class="side-ui">
+            <div class="panel side-card">
+              <p class="eyebrow">Rating step</p>
+              <div id="lastGrade" class="grade-badge neutral">Ready?</div>
+              <p id="helperText" class="muted">Completa il mini-game nel tempo giusto.</p>
+            </div>
+
+            <div class="panel side-card">
+              <p class="eyebrow">Round</p>
+              <div id="starsRow" class="stars-row">☆ ☆ ☆</div>
+              <button id="nextBtn" class="secondary-btn" disabled>Next step</button>
+            </div>
+          </aside>
         </div>
       </section>
 
       <section id="endScreen" class="screen">
-        <div class="end-card">
-          <p class="eyebrow">Risultato</p>
-          <h2 id="endTitle">Carinissimo!</h2>
-          <div id="starView" class="star-view">⭐ ⭐ ⭐</div>
-          <p id="endText">Hai preparato un bubble tea delizioso.</p>
-          <button id="restartBtn" class="primary-btn">Rigioca</button>
+        <div class="panel end-panel">
+          <p class="eyebrow">Risultato finale</p>
+          <h2 id="finalTitle">Adorabile!</h2>
+          <div id="finalStars" class="final-stars">⭐ ⭐ ⭐</div>
+          <p id="finalMessage" class="lead">
+            Hai preparato i drink con precisione e tanto stile.
+          </p>
+          <button id="restartBtn" class="primary-btn">Play again</button>
         </div>
       </section>
     </main>
+
+    <div id="gradePopup" class="grade-popup hidden">
+      <div id="gradePopupText" class="grade-popup-text">Perfect!</div>
+    </div>
   </div>
 
   <script src="script.js"></script>
